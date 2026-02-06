@@ -309,16 +309,16 @@ function createArticleCard(article, index) {
             url = '#';
         }
         
-        let imageUrl = article.image;
-        if (!imageUrl || typeof imageUrl !== 'string' || imageUrl.trim() === '' || !imageUrl.trim().match(/^https?:\/\//i)) {
-            imageUrl = 'https://via.placeholder.com/400x225/cccccc/999999?text=No+Image';
-        } else {
-            imageUrl = imageUrl.trim()
-                .replace(/\s+/g, '%20')
-                .replace(/'/g, '%27')
-                .replace(/"/g, '%22')
-                .replace(/`/g, '%60');
-        }
+       let imageUrl = article.image;
+if (!imageUrl || typeof imageUrl !== 'string' || imageUrl.trim() === '' || !imageUrl.trim().match(/^https?:\/\//i)) {
+    imageUrl = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMjI1IiB2aWV3Qm94PSIwIDAgNDAwIDIyNSI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2NjY2NjYyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzAiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGFsaWdubWVudC1iYXNlbGluZT0ibWlkZGxlIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
+} else {
+    try {
+        imageUrl = new URL(imageUrl.trim()).href;
+    } catch {
+        imageUrl = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMjI1IiB2aWV3Qm94PSIwIDAgNDAwIDIyNSI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2NjY2NjYyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzAiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGFsaWdubWVudC1iYXNlbGluZT0ibWlkZGxlIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
+    }
+}
         
         const source = NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.source?.name || 'Unknown') || 'Unknown';
         const publishedAt = NewsHubUtils?.DateUtils?.formatDate(article.publishedAt) || 'Unknown date';
