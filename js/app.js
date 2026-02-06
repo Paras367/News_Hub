@@ -35,9 +35,9 @@ const DOM = {
 };
 
 function init() {
-    if (!localStorage.getItem('cache_fixed_v2')) {
+    if (!localStorage.getItem('cache_fixed_v3')) {
         localStorage.removeItem('news_cache');
-        localStorage.setItem('cache_fixed_v2', 'true');
+        localStorage.setItem('cache_fixed_v3', 'true');
     }
     
     setupEventListeners();
@@ -295,74 +295,88 @@ function displayArticles() {
     });
 }
 
-let imageUrl = article.image;
-if (!imageUrl || imageUrl.trim() === '' || !imageUrl.trim().match(/^https?:\/\//i)) {
-    imageUrl = 'https://via.placeholder.com/400x225/cccccc/999999?text=No+Image';
-} else {
-    imageUrl = imageUrl.trim().replace(/\s+/g, '%20').replace(/'/g, '%27').replace(/"/g, '%22');
-}
-
-const card = document.createElement('div');
-card.className = `news-card ${isFeatured ? 'featured' : ''}`;
-card.style.animationDelay = `${index * 0.1}s`;
-
-card.innerHTML = `
-    <div class="card-image-wrapper">
-        <img src="${imageUrl}" alt="${title}" loading="lazy">
-        <div class="image-overlay">
-            <span class="source">
-                <i class="fas fa-circle-dot"></i>
-                ${source}
-            </span>
-        </div>
-        ${isFeatured ? `
-            <div class="absolute top-3 left-3">
-                <span class="badge badge-breaking">
-                    <i class="fas fa-bolt mr-1"></i>
-                    BREAKING
-                </span>
+function createArticleCard(article, index) {
+    try {
+        const isFeatured = index === 0 && State.currentCategory === 'all';
+        const isBookmarked = State.bookmarks.some(bm => bm.url === article.url);
+        
+        const title = (NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.title) || 'No title').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        const summary = (NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.summary || 'No summary available') || '').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        let url = article.url || '#';
+        try {
+            url = new URL(url).href;
+        } catch {
+            url = '#';
+        }
+        
+        let imageUrl = article.image;
+        if (!imageUrl || typeof imageUrl !== 'string' || imageUrl.trim() === '' || !imageUrl.trim().match(/^https?:\/\//i)) {
+            imageUrl = 'https://via.placeholder.com/400x225/cccccc/999999?text=No+Image';
+        } else {
+            imageUrl = imageUrl.trim()
+                .replace(/\s+/g, '%20')
+                .replace(/'/g, '%27')
+                .replace(/"/g, '%22')
+                .replace(/`/g, '%60');
+        }
+        
+        const source = NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.source?.name || 'Unknown') || 'Unknown';
+        const publishedAt = NewsHubUtils?.DateUtils?.formatDate(article.publishedAt) || 'Unknown date';
+        const readTime = NewsHubUtils?.DateUtils?.getReadTime(summary) || 'Unknown read time';
+        
+        const card = document.createElement('div');
+        card.className = `news-card ${isFeatured ? 'featured' : ''}`;
+        card.style.animationDelay = `${index * 0.1}s`;
+        
+        const badgeHtml = isFeatured ? 
+            '<div class="absolute top-3 left-3"><span class="badge badge-breaking"><i class="fas fa-bolt mr-1"></i>BREAKING</span></div>' : 
+            '';
+        
+        card.innerHTML = `
+            <div class="card-image-wrapper">
+                <img src="${imageUrl}" alt="${title}" loading="lazy">
+                <div class="image-overlay">
+                    <span class="source">
+                        <i class="fas fa-circle-dot"></i>
+                        ${source}
+                    </span>
+                </div>
+                ${badgeHtml}
             </div>
-        ` : ''}
-    </div>
-    <div class="card-content">
-        <h3>${title}</h3>
-        <p>${summary}</p>
-        <div class="card-meta">
-            <div class="card-meta-left">
-                <span>
-                    <i class="far fa-clock"></i>
-                    ${publishedAt}
-                </span>
-                <span>
-                    <i class="far fa-clock"></i>
-                    ${readTime}
-                </span>
+            <div class="card-content">
+                <h3>${title}</h3>
+                <p>${summary}</p>
+                <div class="card-meta">
+                    <div class="card-meta-left">
+                        <span><i class="far fa-clock"></i>${publishedAt}</span>
+                        <span><i class="far fa-clock"></i>${readTime}</span>
+                    </div>
+                    <div class="card-meta-right">
+                        <button class="action-btn bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" data-url="${url}">
+                            <i class="fas fa-${isBookmarked ? 'bookmark' : 'bookmark'}"></i>
+                        </button>
+                    </div>
+                </div>
+                <a href="${url}" target="_blank" rel="noopener noreferrer" class="read-more-btn">
+                    Read Full Story <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
-            <div class="card-meta-right">
-                <button class="action-btn bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
-                        title="${isBookmarked ? 'Remove bookmark' : 'Bookmark article'}"
-                        data-url="${url}">
-                    <i class="fas ${isBookmarked ? 'fa-bookmark' : 'fa-bookmark'}"></i>
-                </button>
-            </div>
-        </div>
-        <a href="${url}" target="_blank" rel="noopener noreferrer" class="read-more-btn">
-            Read Full Story
-            <i class="fas fa-arrow-right"></i>
-        </a>
-    </div>
-`;
-    
-    const bookmarkBtn = card.querySelector('.bookmark-btn');
-    if (bookmarkBtn) {
-        bookmarkBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            toggleBookmark(article, bookmarkBtn);
-        });
+        `;
+        
+        const bookmarkBtn = card.querySelector('.bookmark-btn');
+        if (bookmarkBtn) {
+            bookmarkBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                toggleBookmark(article, bookmarkBtn);
+            });
+        }
+        
+        return card;
+    } catch (error) {
+        console.error('Card creation failed:', error);
+        return null;
     }
-    
-    return card;
 }
 
 function updateHeroSection() {
@@ -494,7 +508,7 @@ function hideError() {
 function showNoResults() {
     if (DOM.newsContainer) {
         DOM.newsContainer.innerHTML = `
-            <div class="no-results">
+            <div class="no-results col-span-full">
                 <i class="fas fa-newspaper text-6xl text-gray-400 dark:text-gray-600 mb-4"></i>
                 <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">No articles found</h3>
                 <p class="text-gray-600 dark:text-gray-400">Try adjusting your search or selecting a different category.</p>
@@ -548,22 +562,24 @@ function showToast(message, type = 'success') {
     
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.style.position = 'fixed';
-    toast.style.top = '20px';
-    toast.style.right = '20px';
-    toast.style.background = type === 'success' ? 'white' : '#fee';
-    toast.style.color = type === 'success' ? '#1e293b' : '#dc2626';
-    toast.style.padding = '16px 24px';
-    toast.style.borderRadius = '12px';
-    toast.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)';
-    toast.style.display = 'flex';
-    toast.style.alignItems = 'center';
-    toast.style.gap = '12px';
-    toast.style.transform = 'translateX(400px)';
-    toast.style.opacity = '0';
-    toast.style.transition = 'all 0.3s ease';
-    toast.style.zIndex = '1000';
-    toast.style.borderLeft = type === 'success' ? '4px solid #10b981' : '4px solid #ef4444';
+    Object.assign(toast.style, {
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        background: type === 'success' ? 'white' : '#fee',
+        color: type === 'success' ? '#1e293b' : '#dc2626',
+        padding: '16px 24px',
+        borderRadius: '12px',
+        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        transform: 'translateX(400px)',
+        opacity: '0',
+        transition: 'all 0.3s ease',
+        zIndex: '1000',
+        borderLeft: type === 'success' ? '4px solid #10b981' : '4px solid #ef4444'
+    });
     
     toast.innerHTML = `
         <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" style="font-size: 1.25rem;"></i>
@@ -581,9 +597,7 @@ function showToast(message, type = 'success') {
         toast.style.transform = 'translateX(400px)';
         toast.style.opacity = '0';
         setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
         }, 300);
     }, 3300);
 }
@@ -612,13 +626,20 @@ if (typeof NewsHubUtils === 'undefined') {
             RETRY_DELAY: 2000
         },
         SecurityUtils: {
-            sanitizeHtml: (text) => text || '',
+            sanitizeHtml: (text) => {
+                if (!text) return '';
+                return text
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            },
             sanitizeUrl: (url) => {
                 if (!url) return '#';
                 url = url.trim().replace(/\s+/g, '%20');
                 try {
-                    const parsed = new URL(url);
-                    return parsed.href;
+                    return new URL(url).href;
                 } catch {
                     return '#';
                 }
