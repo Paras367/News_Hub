@@ -1,8 +1,3 @@
-/**
- * NewsHub Pro - Main Application
- */
-
-
 const State = {
     articles: [],
     filteredArticles: [],
@@ -39,71 +34,41 @@ const DOM = {
     loadingOverlay: document.getElementById('loading-overlay')
 };
 
-// ========================================
-// DEBUG: Log DOM elements
-// ========================================
-console.log('🔍 DOM Elements:', {
-    newsContainer: DOM.newsContainer,
-    skeletonLoader: DOM.skeletonLoader,
-    errorContainer: DOM.errorContainer
-});
-
-// ========================================
-// INITIALIZATION
-// ========================================
 function init() {
-    console.log('🚀 NewsHub Pro Initializing...');
+    if (!localStorage.getItem('cache_fixed_v2')) {
+        localStorage.removeItem('news_cache');
+        localStorage.setItem('cache_fixed_v2', 'true');
+    }
     
-    // Setup event listeners
     setupEventListeners();
-    
-    // Initialize dark mode
     initDarkMode();
-    
-    // Load news
     loadNews();
-    
-    // Setup scroll monitoring
     setupScrollMonitoring();
     
-    // Clear expired cache
     if (NewsHubUtils?.StorageUtils?.clearExpired) {
         NewsHubUtils.StorageUtils.clearExpired();
     }
-    
-    console.log('✅ NewsHub Pro Initialized');
 }
 
-// ========================================
-// EVENT LISTENERS
-// ========================================
 function setupEventListeners() {
-    console.log('🔌 Setting up event listeners...');
-    
-    // Retry button
     if (DOM.retryBtn) {
         DOM.retryBtn.addEventListener('click', () => {
-            console.log('🔄 Retry button clicked');
             hideError();
             loadNews();
         });
     }
     
-    // Refresh button
     if (DOM.refreshBtn) {
         DOM.refreshBtn.addEventListener('click', () => {
-            console.log('⟳ Refresh button clicked');
             State.currentPage = 1;
             loadNews(true);
         });
     }
     
-    // Dark mode toggle
     if (DOM.darkModeToggle) {
         DOM.darkModeToggle.addEventListener('click', toggleDarkMode);
     }
     
-    // Search input
     if (DOM.searchInput) {
         DOM.searchInput.addEventListener('input', handleSearch);
     }
@@ -111,39 +76,65 @@ function setupEventListeners() {
         DOM.mobileSearchInput.addEventListener('input', handleSearch);
     }
     
-    // Mobile search toggle
     if (DOM.mobileSearchBtn) {
         DOM.mobileSearchBtn.addEventListener('click', toggleMobileSearch);
     }
     
-    // Category buttons
     if (DOM.categoryBtns) {
         DOM.categoryBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const category = btn.dataset.category;
-                console.log('🏷️ Category selected:', category);
                 selectCategory(category);
             });
         });
     }
     
-    // Back to top button
     if (DOM.backToTopBtn) {
         DOM.backToTopBtn.addEventListener('click', scrollToTop);
     }
     
-    // Window scroll
-    window.addEventListener('scroll', handleScroll);
+    const newsletterForm = document.querySelector('.newsletter-form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const emailInput = newsletterForm.querySelector('.newsletter-input');
+            const email = emailInput?.value.trim();
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailRegex.test(email)) {
+                showToast('📧 Please enter a valid email address', 'error');
+                emailInput?.focus();
+                return;
+            }
+            
+            const subscribers = JSON.parse(localStorage.getItem('nh_subscribers') || '[]');
+            if (subscribers.includes(email)) {
+                showToast('✅ You\'re already subscribed!', 'success');
+                return;
+            }
+            
+            subscribers.push(email);
+            localStorage.setItem('nh_subscribers', JSON.stringify(subscribers));
+            
+            const btn = newsletterForm.querySelector('.newsletter-btn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> Subscribed!';
+            btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            
+            setTimeout(() => {
+                emailInput.value = '';
+                btn.innerHTML = originalHTML;
+                btn.style.background = '';
+                showToast('🎉 Thank you for subscribing to NewsHub Pro!', 'success');
+            }, 2500);
+        });
+    }
     
-    // Window resize
+    window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleResize);
 }
 
-// ========================================
-// DARK MODE
-// ========================================
 function initDarkMode() {
-    console.log('🌙 Initializing dark mode:', State.darkMode);
     if (State.darkMode) {
         document.documentElement.classList.add('dark');
         if (DOM.themeIcon) {
@@ -165,61 +156,57 @@ function toggleDarkMode() {
     }
     
     localStorage.setItem('dark_mode', State.darkMode);
-    showToast(State.darkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success');
+    showToast(State.darkMode ? '🌙 Dark mode enabled' : '☀️ Light mode enabled', 'success');
 }
 
-// ========================================
-// NEWS LOADING
-// ========================================
 async function loadNews(forceRefresh = false) {
-    console.log('📡 Loading news... (forceRefresh:', forceRefresh, ')');
     showLoading();
     
     try {
-        // Check cache first
-        if (!forceRefresh) {
-            const cached = NewsHubUtils?.StorageUtils?.getWithExpiry?.('news_cache');
-            if (cached && cached.length > 0) {
-                console.log('💾 Loaded from cache:', cached.length, 'articles');
+        if (!forceRefresh && typeof NewsHubUtils !== 'undefined' && NewsHubUtils.StorageUtils) {
+            const cached = NewsHubUtils.StorageUtils.getWithExpiry('news_cache');
+            
+            if (Array.isArray(cached) && cached.length > 0 && cached[0].title) {
                 State.articles = cached;
                 filterAndDisplayArticles();
-                showToast('Loaded from cache', 'success');
-                
-                // Refresh in background
-                fetchNewsInBackground();
+                showToast('⚡ Loaded from cache', 'success');
+                setTimeout(fetchNewsInBackground, 1000);
+                hideLoading();
                 return;
             }
         }
         
-        // Fetch fresh data
-        console.log('🌐 Fetching fresh data from:', NewsHubUtils?.API_CONFIG?.FULL_URL);
         const data = await fetchNewsWithRetry();
         
-        console.log('✅ Data received:', data);
-        
-        if (!data.articles || data.articles.length === 0) {
-            throw new Error('No articles returned from API');
+        if (!data.articles || !Array.isArray(data.articles) || data.articles.length === 0) {
+            throw new Error('API returned no valid articles');
         }
         
         State.articles = data.articles;
-        console.log('📚 Total articles:', State.articles.length);
         
-        // Cache the data
-        if (NewsHubUtils?.StorageUtils?.setWithExpiry) {
-            NewsHubUtils.StorageUtils.setWithExpiry(
-                'news_cache', 
-                State.articles, 
-                NewsHubUtils.API_CONFIG.CACHE_DURATION
-            );
+        if (typeof NewsHubUtils !== 'undefined' && NewsHubUtils.StorageUtils) {
+            NewsHubUtils.StorageUtils.setWithExpiry('news_cache', State.articles, NewsHubUtils.API_CONFIG.CACHE_DURATION);
         }
         
         filterAndDisplayArticles();
         hideLoading();
+        showToast('✨ Latest news loaded', 'success');
         
     } catch (error) {
-        console.error('❌ Error loading news:', error);
-        State.error = error.message;
-        showError(error.message);
+        State.error = error.message || 'Unknown error occurred';
+        
+        if (typeof NewsHubUtils !== 'undefined' && NewsHubUtils.StorageUtils) {
+            const emergencyCache = NewsHubUtils.StorageUtils.getWithExpiry('news_cache');
+            if (Array.isArray(emergencyCache) && emergencyCache.length > 0) {
+                State.articles = emergencyCache;
+                filterAndDisplayArticles();
+                hideLoading();
+                showToast('⚠️ Showing cached news (network issue)', 'warning');
+                return;
+            }
+        }
+        
+        showError(State.error);
         hideLoading();
     }
 }
@@ -227,30 +214,18 @@ async function loadNews(forceRefresh = false) {
 async function fetchNewsWithRetry(retries = NewsHubUtils?.API_CONFIG?.MAX_RETRIES || 3) {
     try {
         const response = await fetch(NewsHubUtils?.API_CONFIG?.FULL_URL || 'https://news-aggregator-api.dhimanparas605.workers.dev/', {
-            headers: {
-                'Accept': 'application/json'
-            }
+            headers: { 'Accept': 'application/json' }
         });
         
-        console.log('📡 Response status:', response.status);
-        
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('❌ API Error:', errorText);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const data = await response.json();
-        console.log('✅ API Response:', data);
-        return data;
+        return await response.json();
         
     } catch (error) {
-        console.error('❌ Fetch error (attempt', NewsHubUtils?.API_CONFIG?.MAX_RETRIES - retries + 1, '):', error.message);
-        
         if (retries > 0) {
-            const delay = NewsHubUtils?.API_CONFIG?.RETRY_DELAY || 2000;
-            console.log(`⏳ Retrying in ${delay}ms...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
+            await new Promise(resolve => setTimeout(resolve, NewsHubUtils?.API_CONFIG?.RETRY_DELAY || 2000));
             return fetchNewsWithRetry(retries - 1);
         }
         throw error;
@@ -258,41 +233,25 @@ async function fetchNewsWithRetry(retries = NewsHubUtils?.API_CONFIG?.MAX_RETRIE
 }
 
 function fetchNewsInBackground() {
-    console.log('🔄 Fetching news in background...');
     fetchNewsWithRetry()
         .then(data => {
             if (data.articles && data.articles.length > 0) {
                 State.articles = data.articles;
                 if (NewsHubUtils?.StorageUtils?.setWithExpiry) {
-                    NewsHubUtils.StorageUtils.setWithExpiry(
-                        'news_cache', 
-                        State.articles, 
-                        NewsHubUtils.API_CONFIG.CACHE_DURATION
-                    );
+                    NewsHubUtils.StorageUtils.setWithExpiry('news_cache', State.articles, NewsHubUtils.API_CONFIG.CACHE_DURATION);
                 }
-                console.log('✅ Background fetch successful');
             }
         })
-        .catch(err => console.error('❌ Background fetch failed:', err));
+        .catch(err => console.error('Background fetch failed:', err));
 }
 
-// ========================================
-// FILTERING & DISPLAY
-// ========================================
 function filterAndDisplayArticles() {
-    console.log('FilterWhere articles...');
-    
-    // Filter by category
     let filtered = [...State.articles];
-    console.log('📋 Articles before filtering:', filtered.length);
     
     if (State.currentCategory !== 'all') {
-        filtered = filtered.filter(article => 
-            article.category?.toLowerCase() === State.currentCategory
-        );
+        filtered = filtered.filter(article => article.category?.toLowerCase() === State.currentCategory);
     }
     
-    // Filter by search term
     if (State.searchTerm) {
         const term = State.searchTerm.toLowerCase();
         filtered = filtered.filter(article => 
@@ -303,153 +262,121 @@ function filterAndDisplayArticles() {
     }
     
     State.filteredArticles = filtered;
-    console.log('✅ Articles after filtering:', State.filteredArticles.length);
     
-    // Display articles
     displayArticles();
     
-    // Update article count
     if (DOM.articleCount) {
         DOM.articleCount.textContent = `${State.filteredArticles.length} articles`;
     }
     
-    // Show/hide hero section
     updateHeroSection();
 }
 
 function displayArticles() {
-    console.log('📺 Displaying articles...', State.filteredArticles.length);
-    
     if (State.filteredArticles.length === 0) {
-        console.log('⚠️ No articles to display');
         showNoResults();
         return;
     }
     
-    // Hide skeleton loader
     if (DOM.skeletonLoader) {
         DOM.skeletonLoader.style.display = 'none';
-        console.log('👻 Skeleton loader hidden');
     }
     
-    // Clear news container
     if (DOM.newsContainer) {
         DOM.newsContainer.innerHTML = '';
         DOM.newsContainer.style.display = 'grid';
-        console.log('🧹 News container cleared');
     }
     
-    // Create article cards
     State.filteredArticles.forEach((article, index) => {
-        try {
-            const card = createArticleCard(article, index);
-            if (DOM.newsContainer && card) {
-                DOM.newsContainer.appendChild(card);
-            }
-        } catch (error) {
-            console.error('❌ Error creating card for article', index, ':', error);
+        const card = createArticleCard(article, index);
+        if (DOM.newsContainer && card) {
+            DOM.newsContainer.appendChild(card);
         }
     });
-    
-    console.log('✅ Articles displayed successfully');
 }
 
 function createArticleCard(article, index) {
-    try {
-        const isFeatured = index === 0 && State.currentCategory === 'all';
-        const isBookmarked = State.bookmarks.some(bm => bm.url === article.url);
-        
-        // Sanitize data
-        const title = NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.title) || 'No title';
-        const summary = NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.summary || 'No summary available');
-        const url = NewsHubUtils?.SecurityUtils?.sanitizeUrl(article.url) || '#';
-        
-        // Fix image URL (remove spaces, handle null)
-        let imageUrl = article.image;
-        if (!imageUrl || imageUrl.trim() === '') {
-            imageUrl = 'https://via.placeholder.com/400x225?text=No+Image';
-        } else {
-            // Remove spaces and trim
-            imageUrl = imageUrl.trim().replace(/\s+/g, '%20');
-        }
-        
-        const source = NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.source?.name || 'Unknown');
-        const publishedAt = NewsHubUtils?.DateUtils?.formatDate(article.publishedAt) || 'Unknown date';
-        const readTime = NewsHubUtils?.DateUtils?.getReadTime(summary) || 'Unknown read time';
-        
-        // Create card element
-        const card = document.createElement('div');
-        card.className = `news-card ${isFeatured ? 'featured' : ''}`;
-        card.style.animationDelay = `${index * 0.1}s`;
-        
-        card.innerHTML = `
-            <div class="card-image-wrapper">
-                <img src="${imageUrl}" alt="${title}" loading="lazy" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x225?text=Image+Error'">
-                <div class="image-overlay">
-                    <span class="source">
-                        <i class="fas fa-circle-dot"></i>
-                        ${source}
+    const isFeatured = index === 0 && State.currentCategory === 'all';
+    const isBookmarked = State.bookmarks.some(bm => bm.url === article.url);
+    
+    const title = NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.title) || 'No title';
+    const summary = NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.summary || 'No summary available');
+    const url = NewsHubUtils?.SecurityUtils?.sanitizeUrl(article.url) || '#';
+    
+    let imageUrl = article.image;
+    if (!imageUrl || imageUrl.trim() === '') {
+        imageUrl = 'https://via.placeholder.com/400x225?text=No+Image';
+    } else {
+        imageUrl = imageUrl.trim().replace(/\s+/g, '%20');
+    }
+    
+    const source = NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.source?.name || 'Unknown');
+    const publishedAt = NewsHubUtils?.DateUtils?.formatDate(article.publishedAt) || 'Unknown date';
+    const readTime = NewsHubUtils?.DateUtils?.getReadTime(summary) || 'Unknown read time';
+    
+    const card = document.createElement('div');
+    card.className = `news-card ${isFeatured ? 'featured' : ''}`;
+    card.style.animationDelay = `${index * 0.1}s`;
+    
+    card.innerHTML = `
+        <div class="card-image-wrapper">
+            <img src="${imageUrl}" alt="${title}" loading="lazy" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x225?text=Image+Error'">
+            <div class="image-overlay">
+                <span class="source">
+                    <i class="fas fa-circle-dot"></i>
+                    ${source}
+                </span>
+            </div>
+            ${isFeatured ? `
+                <div class="absolute top-3 left-3">
+                    <span class="badge badge-breaking">
+                        <i class="fas fa-bolt mr-1"></i>
+                        BREAKING
                     </span>
                 </div>
-                ${isFeatured ? `
-                    <div class="absolute top-3 left-3">
-                        <span class="badge badge-breaking">
-                            <i class="fas fa-bolt mr-1"></i>
-                            BREAKING
-                        </span>
-                    </div>
-                ` : ''}
-            </div>
-            <div class="card-content">
-                <h3>${title}</h3>
-                <p>${summary}</p>
-                <div class="card-meta">
-                    <div class="card-meta-left">
-                        <span>
-                            <i class="far fa-clock"></i>
-                            ${publishedAt}
-                        </span>
-                        <span>
-                            <i class="far fa-clock"></i>
-                            ${readTime}
-                        </span>
-                    </div>
-                    <div class="card-meta-right">
-                        <button class="action-btn bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
-                                title="${isBookmarked ? 'Remove bookmark' : 'Bookmark article'}"
-                                data-url="${url}">
-                            <i class="fas ${isBookmarked ? 'fa-bookmark' : 'fa-bookmark'}"></i>
-                        </button>
-                    </div>
+            ` : ''}
+        </div>
+        <div class="card-content">
+            <h3>${title}</h3>
+            <p>${summary}</p>
+            <div class="card-meta">
+                <div class="card-meta-left">
+                    <span>
+                        <i class="far fa-clock"></i>
+                        ${publishedAt}
+                    </span>
+                    <span>
+                        <i class="far fa-clock"></i>
+                        ${readTime}
+                    </span>
                 </div>
-                <a href="${url}" target="_blank" rel="noopener noreferrer" class="read-more-btn">
-                    Read Full Story
-                    <i class="fas fa-arrow-right"></i>
-                </a>
+                <div class="card-meta-right">
+                    <button class="action-btn bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
+                            title="${isBookmarked ? 'Remove bookmark' : 'Bookmark article'}"
+                            data-url="${url}">
+                        <i class="fas ${isBookmarked ? 'fa-bookmark' : 'fa-bookmark'}"></i>
+                    </button>
+                </div>
             </div>
-        `;
-        
-        // Add event listeners
-        const bookmarkBtn = card.querySelector('.bookmark-btn');
-        if (bookmarkBtn) {
-            bookmarkBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                toggleBookmark(article, bookmarkBtn);
-            });
-        }
-        
-        return card;
-        
-    } catch (error) {
-        console.error('❌ Error in createArticleCard:', error);
-        return null;
+            <a href="${url}" target="_blank" rel="noopener noreferrer" class="read-more-btn">
+                Read Full Story
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    `;
+    
+    const bookmarkBtn = card.querySelector('.bookmark-btn');
+    if (bookmarkBtn) {
+        bookmarkBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            toggleBookmark(article, bookmarkBtn);
+        });
     }
+    
+    return card;
 }
 
-// ========================================
-// HERO SECTION
-// ========================================
 function updateHeroSection() {
     if (State.filteredArticles.length > 0 && State.currentCategory === 'all') {
         const heroArticle = State.filteredArticles[0];
@@ -468,20 +395,15 @@ function updateHeroSection() {
     }
 }
 
-// ========================================
-// BOOKMARKS
-// ========================================
 function toggleBookmark(article, button) {
     const isBookmarked = State.bookmarks.some(bm => bm.url === article.url);
     
     if (isBookmarked) {
-        // Remove bookmark
         State.bookmarks = State.bookmarks.filter(bm => bm.url !== article.url);
         button.classList.remove('bookmarked');
         button.innerHTML = '<i class="fas fa-bookmark"></i>';
         showToast('Removed from bookmarks', 'success');
     } else {
-        // Add bookmark
         State.bookmarks.push({
             title: article.title,
             url: article.url,
@@ -493,17 +415,12 @@ function toggleBookmark(article, button) {
         showToast('Added to bookmarks', 'success');
     }
     
-    // Save to localStorage
     localStorage.setItem('news_bookmarks', JSON.stringify(State.bookmarks));
 }
 
-// ========================================
-// SEARCH & CATEGORIES
-// ========================================
 function handleSearch(e) {
     State.searchTerm = e.target.value.trim();
     State.currentPage = 1;
-    console.log('🔍 Search term:', State.searchTerm);
     filterAndDisplayArticles();
 }
 
@@ -517,9 +434,6 @@ function toggleMobileSearch() {
 }
 
 function selectCategory(category) {
-    console.log('🏷️ Selecting category:', category);
-    
-    // Update active button
     if (DOM.categoryBtns) {
         DOM.categoryBtns.forEach(btn => {
             btn.classList.toggle('active', btn.dataset.category === category);
@@ -535,9 +449,6 @@ function selectCategory(category) {
     filterAndDisplayArticles();
 }
 
-// ========================================
-// UI STATES
-// ========================================
 function showLoading() {
     State.isLoading = true;
     
@@ -556,8 +467,6 @@ function showLoading() {
     if (DOM.errorContainer) {
         DOM.errorContainer.style.display = 'none';
     }
-    
-    console.log('⏳ Loading state activated');
 }
 
 function hideLoading() {
@@ -568,8 +477,6 @@ function hideLoading() {
             DOM.loadingOverlay.style.display = 'none';
         }
     }, 300);
-    
-    console.log('✅ Loading state deactivated');
 }
 
 function showError(message) {
@@ -588,8 +495,6 @@ function showError(message) {
     if (DOM.newsContainer) {
         DOM.newsContainer.style.display = 'none';
     }
-    
-    console.log('❌ Error displayed:', message);
 }
 
 function hideError() {
@@ -613,15 +518,9 @@ function showNoResults() {
     if (DOM.skeletonLoader) {
         DOM.skeletonLoader.style.display = 'none';
     }
-    
-    console.log('⚠️ No results shown');
 }
 
-// ========================================
-// SCROLL HANDLING
-// ========================================
 function handleScroll() {
-    // Back to top button
     if (DOM.backToTopBtn) {
         if (window.scrollY > 300) {
             DOM.backToTopBtn.style.opacity = '1';
@@ -634,10 +533,7 @@ function handleScroll() {
 }
 
 function scrollToTop() {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function setupScrollMonitoring() {
@@ -648,10 +544,8 @@ function setupScrollMonitoring() {
         const header = document.querySelector('header');
         if (header) {
             if (currentScroll > lastScroll && currentScroll > 100) {
-                // Scrolling down
                 header.style.transform = 'translateY(-100%)';
             } else {
-                // Scrolling up
                 header.style.transform = 'translateY(0)';
             }
         }
@@ -660,11 +554,7 @@ function setupScrollMonitoring() {
     });
 }
 
-// ========================================
-// TOAST NOTIFICATIONS
-// ========================================
 function showToast(message, type = 'success') {
-    // Remove existing toast
     const existing = document.querySelector('.toast');
     if (existing) existing.remove();
     
@@ -694,13 +584,11 @@ function showToast(message, type = 'success') {
     
     document.body.appendChild(toast);
     
-    // Show toast
     setTimeout(() => {
         toast.style.transform = 'translateX(0)';
         toast.style.opacity = '1';
     }, 100);
     
-    // Auto remove after 3 seconds
     setTimeout(() => {
         toast.style.transform = 'translateX(400px)';
         toast.style.opacity = '0';
@@ -712,11 +600,7 @@ function showToast(message, type = 'success') {
     }, 3300);
 }
 
-// ========================================
-// RESPONSIVE HANDLING
-// ========================================
 function handleResize() {
-    // Adjust grid columns based on screen width
     const width = window.innerWidth;
     if (width < 768) {
         State.articlesPerPage = 6;
@@ -727,21 +611,11 @@ function handleResize() {
     }
 }
 
-// ========================================
-// INITIALIZE APP
-// ========================================
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOMContentLoaded event fired');
-    // Small delay for better UX
     setTimeout(init, 300);
 });
 
-// ========================================
-// FALLBACK: If NewsHubUtils is not available
-// ========================================
 if (typeof NewsHubUtils === 'undefined') {
-    console.warn('⚠️ NewsHubUtils not found, creating fallback...');
-    
     window.NewsHubUtils = {
         API_CONFIG: {
             FULL_URL: 'https://news-aggregator-api.dhimanparas605.workers.dev/',
@@ -751,7 +625,16 @@ if (typeof NewsHubUtils === 'undefined') {
         },
         SecurityUtils: {
             sanitizeHtml: (text) => text || '',
-            sanitizeUrl: (url) => url || '#'
+            sanitizeUrl: (url) => {
+                if (!url) return '#';
+                url = url.trim().replace(/\s+/g, '%20');
+                try {
+                    const parsed = new URL(url);
+                    return parsed.href;
+                } catch {
+                    return '#';
+                }
+            }
         },
         DateUtils: {
             formatDate: (date) => {
@@ -771,36 +654,35 @@ if (typeof NewsHubUtils === 'undefined') {
         },
         StorageUtils: {
             setWithExpiry: (key, value, ttl) => {
-                const item = {
-                    value: value,
-                    expiry: Date.now() + ttl
-                };
+                const item = { value: value, expiry: Date.now() + ttl };
                 localStorage.setItem(key, JSON.stringify(item));
             },
             getWithExpiry: (key) => {
                 const itemStr = localStorage.getItem(key);
                 if (!itemStr) return null;
-                const item = JSON.parse(itemStr);
-                if (Date.now() > item.expiry) {
-                    localStorage.removeItem(key);
+                try {
+                    const item = JSON.parse(itemStr);
+                    if (Date.now() > item.expiry) {
+                        localStorage.removeItem(key);
+                        return null;
+                    }
+                    return item.value;
+                } catch (e) {
                     return null;
                 }
-                return item.value;
             },
             clearExpired: () => {
                 Object.keys(localStorage).forEach(key => {
+                    const itemStr = localStorage.getItem(key);
                     try {
-                        const item = JSON.parse(localStorage.getItem(key));
+                        const item = JSON.parse(itemStr);
                         if (item.expiry && Date.now() > item.expiry) {
                             localStorage.removeItem(key);
                         }
-                    } catch (e) {
-                  
+                    } catch {
                     }
                 });
             }
         }
     };
-    
-    console.log('✅ Fallback NewsHubUtils created');
 }
