@@ -1,6 +1,6 @@
 # 📰 News_Hub - Modern News Aggregator
 
-![NewsHub Banner](https://picsum.photos/seed/news-hub/1200/400?blur=2)
+![NewsHub Banner](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjQwMCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzYzNjZmMSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNDAiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk5ld3NIb3AgUHJvPC90ZXh0Pjwvc3ZnPg==)
 
 Modern, responsive news aggregator with real-time headlines and beautiful UI
 
