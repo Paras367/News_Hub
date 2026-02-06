@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NewsHub Pro - Latest headlines from trusted sources worldwide">
+    <meta name="keywords" content="news, headlines, breaking news, latest news, world news">
+    <title>NewsHub Pro 📰 | Breaking News & Latest Headlines</title>
+    <link rel="icon" href="image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📰</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    
+    <div id="loading-overlay" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-32 w-32 border-b-4 border-blue-600 mx-auto mb-6"></div>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Loading News...</h2>
+            <p class="text-gray-600 dark:text-gray-400">Fetching latest headlines</p>
+        </div>
+    </div>
+
+  
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white/20 p-3 rounded-xl">
+                        <i class="fas fa-newspaper text-3xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold tracking-tight">NewsHub Pro</h1>
+                        <p class="text-sm opacity-90 hidden md:block">Breaking News & Latest Headlines</p>
+                    </div>
+                </div>
+
+   
+                <div class="flex items-center space-x-3">
+
+                    <button id="mobile-search-btn" class="md:hidden p-2 hover:bg-white/20 rounded-lg">
+                        <i class="fas fa-search text-xl"></i>
+                    </button>
+
+                    <button id="dark-mode-toggle" class="p-2 hover:bg-white/20 rounded-lg transition">
+                        <i class="fas fa-moon text-xl" id="theme-icon"></i>
+                    </button>
+
+               
+                    <button id="refresh-btn" class="hidden md:flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh</span>
+                    </button>
+                </div>
+            </div>
+
+   
+            <div class="mt-4 hidden md:block">
+                <div class="relative max-w-2xl mx-auto">
+                    <input 
+                        type="text" 
+                        id="search-input" 
+                        placeholder="🔍 Search news articles..." 
+                        class="w-full px-5 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white placeholder-white/70"
+                    >
+                    <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+           
+            <div id="mobile-search" class="mt-4 md:hidden hidden">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="mobile-search-input" 
+                        placeholder="Search news..." 
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 text-white placeholder-white/70"
+                    >
+                </div>
+            </div>
+
+          
+            <nav class="mt-6 hidden md:block">
+                <div class="flex items-center justify-center space-x-1 overflow-x-auto scrollbar-hide">
+                    <button class="category-btn active" data-category="all">
+                        <i class="fas fa-fire"></i>
+                        <span>All News</span>
+                    </button>
+                    <button class="category-btn" data-category="business">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Business</span>
+                    </button>
+                    <button class="category-btn" data-category="technology">
+                        <i class="fas fa-laptop-code"></i>
+                        <span>Tech</span>
+                    </button>
+                    <button class="category-btn" data-category="entertainment">
+                        <i class="fas fa-film"></i>
+                        <span>Entertainment</span>
+                    </button>
+                    <button class="category-btn" data-category="sports">
+                        <i class="fas fa-futbol"></i>
+                        <span>Sports</span>
+                    </button>
+                    <button class="category-btn" data-category="health">
+                        <i class="fas fa-heartbeat"></i>
+                        <span>Health</span>
+                    </button>
+                    <button class="category-btn" data-category="science">
+                        <i class="fas fa-flask"></i>
+                        <span>Science</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+
+    <main class="container mx-auto px-4 py-8">
+     
+        <section id="hero-section" class="mb-12 hidden">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-8 text-white">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-semibold uppercase tracking-wider">Breaking News</span>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-bolt animate-pulse"></i>
+                        <span class="text-sm">Just Now</span>
+                    </div>
+                </div>
+                <h2 id="hero-title" class="text-3xl md:text-4xl font-bold mb-4 line-clamp-2"></h2>
+                <p id="hero-summary" class="text-lg opacity-90 mb-6 line-clamp-3"></p>
+                <a id="hero-link" href="#" target="_blank" class="inline-flex items-center space-x-2 bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                    <span>Read Full Story</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </section>
+
+      
+        <section id="news-section">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+                    <i class="fas fa-list-alt mr-3 text-blue-600"></i>
+                    Latest Headlines
+                </h2>
+                <div class="flex items-center space-x-2">
+                    <span id="article-count" class="text-sm text-gray-600 dark:text-gray-400">Loading...</span>
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                </div>
+            </div>
+
+            <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+             
+            </div>
+
+            <div id="skeleton-loader" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden animate-pulse">
+                    <div class="h-48 bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="p-5">
+                        <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6 mb-4"></div>
+                        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden animate-pulse">
+                    <div class="h-48 bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="p-5">
+                        <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6 mb-4"></div>
+                        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden animate-pulse">
+                    <div class="h-48 bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="p-5">
+                        <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6 mb-4"></div>
+                        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden animate-pulse">
+                    <div class="h-48 bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="p-5">
+                        <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6 mb-4"></div>
+                        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden animate-pulse">
+                    <div class="h-48 bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="p-5">
+                        <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6 mb-4"></div>
+                        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden animate-pulse">
+                    <div class="h-48 bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="p-5">
+                        <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6 mb-4"></div>
+                        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                    </div>
+                </div>
+            </div>
+
+           
+            <div id="error-container" class="hidden text-center py-12">
+                <div class="inline-block p-4 bg-red-100 dark:bg-red-900/30 rounded-full mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-4xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Oops! Something went wrong</h3>
+                <p id="error-message" class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                    Failed to load news. Please try again.
+                </p>
+                <button id="retry-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center mx-auto space-x-2">
+                    <i class="fas fa-redo"></i>
+                    <span>Retry</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+   
+    <footer class="bg-gradient-to-r from-gray-900 to-black text-white pt-16 pb-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="bg-blue-600 p-3 rounded-xl">
+                            <i class="fas fa-newspaper text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold">NewsHub Pro</h3>
+                            <p class="text-gray-400 text-sm">Your trusted news source</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 leading-relaxed">
+                        Stay informed with the latest breaking news and headlines from around the world.
+                    </p>
+                    <div class="flex space-x-3 pt-3">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-blue-600 flex items-center justify-center transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-blue-400 flex items-center justify-center transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-pink-600 flex items-center justify-center transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-red-600 flex items-center justify-center transition">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+
+               
+                <div>
+                    <h4 class="text-lg font-bold mb-6 flex items-center">
+                        <i class="fas fa-link mr-2 text-blue-500"></i>
+                        Quick Links
+                    </h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-chevron-right mr-2 text-sm"></i> Home</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-chevron-right mr-2 text-sm"></i> Latest News</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-chevron-right mr-2 text-sm"></i> Categories</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-chevron-right mr-2 text-sm"></i> About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-chevron-right mr-2 text-sm"></i> Contact</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-chevron-right mr-2 text-sm"></i> Privacy Policy</a></li>
+                    </ul>
+                </div>
+
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-6 flex items-center">
+                        <i class="fas fa-folder mr-2 text-blue-500"></i>
+                        Categories
+                    </h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-briefcase mr-2"></i> Business</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-laptop-code mr-2"></i> Technology</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-film mr-2"></i> Entertainment</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-futbol mr-2"></i> Sports</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-heartbeat mr-2"></i> Health</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-flask mr-2"></i> Science</a></li>
+                    </ul>
+                </div>
+
+              
+                <div>
+                    <h4 class="text-lg font-bold mb-6 flex items-center">
+                        <i class="fas fa-envelope mr-2 text-blue-500"></i>
+                        Newsletter
+                    </h4>
+                    <p class="text-gray-400 mb-4">
+                        Subscribe to get the latest news delivered to your inbox.
+                    </p>
+                    <div class="space-y-3">
+                        <input 
+                            type="email" 
+                            placeholder="Your email address" 
+                            class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500"
+                        >
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center space-x-2">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Subscribe</span>
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">
+                        <i class="fas fa-lock mr-1"></i> We respect your privacy. Unsubscribe anytime.
+                    </p>
+                </div>
+            </div>
+
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 border-t border-gray-800 pt-8">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-blue-500 mb-1">10M+</div>
+                    <div class="text-gray-400 text-sm">Monthly Readers</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-blue-500 mb-1">500+</div>
+                    <div class="text-gray-400 text-sm">News Sources</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-blue-500 mb-1">24/7</div>
+                    <div class="text-gray-400 text-sm">Live Updates</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-blue-500 mb-1">100%</div>
+                    <div class="text-gray-400 text-sm">Trusted Content</div>
+                </div>
+            </div>
+
+            
+            <div class="border-t border-gray-800 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <p class="text-gray-400 text-sm">
+                            © 2026 <span class="font-semibold">NewsHub Pro</span>. All rights reserved.
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-wrap justify-center gap-6 mb-6 md:mb-0">
+                        <a href="#" class="text-gray-400 hover:text-white transition text-sm flex items-center">
+                            <i class="fas fa-shield-alt mr-2"></i> Privacy Policy
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition text-sm flex items-center">
+                            <i class="fas fa-file-contract mr-2"></i> Terms of Service
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition text-sm flex items-center">
+                            <i class="fas fa-cookie mr-2"></i> Cookie Policy
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition text-sm flex items-center">
+                            <i class="fas fa-headset mr-2"></i> Contact Support
+                        </a>
+                    </div>
+                    
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-apple text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-google-play text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-windows text-2xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+              
+                <div class="mt-8 pt-6 border-t border-gray-800 text-center text-xs text-gray-500">
+                    <p class="mb-2">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        News summaries only. All content belongs to original sources.
+                    </p>
+                    <p>
+                        <i class="fas fa-bolt mr-2"></i>
+                        Powered by News API • Built with ❤️ by SoftwareLabs
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+   
+    <button id="back-to-top" class="fixed bottom-6 right-6 w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-blue-700 hover:shadow-xl z-50">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
