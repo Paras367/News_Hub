@@ -1,6 +1,6 @@
 # 📰 News_Hub - Modern News Aggregator
 
-![NewsHub Banner](https://via.placeholder.com/1200x400/6366f1/ffffff?text=NewsHub+Pro)
+![NewsHub Banner](https://placehold.co/1200x400/6366f1/ffffff/png?text=NewsHub+Pro&font=inter&fontSize=64)
 
 Modern, responsive news aggregator with real-time headlines and beautiful UI
 
