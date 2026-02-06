@@ -1,20 +1,90 @@
+# dependabot.yml
 version: 2
+
 updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: "deps"
+      interval: "daily"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "Paras367"
     labels:
       - "dependencies"
-      - "javascript"
+      - "automated"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    allow:
+      - dependency-name: "cloudflare-worker*"
+      - dependency-name: "crypto-js"
+      - dependency-name: "sha256"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
- 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "your-username"
     labels:
       - "github-actions"
+      - "automated"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "10:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    labels:
+      - "docker"
+      - "automated"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 20
+    labels:
+      - "security"
+      - "critical"
+    commit-message:
+      prefix: "security"
+    groups:
+      security-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "security:high"
+          - "security:critical"
+
+security-updates:
+  enabled: true
+  package-ecosystem: "npm"
+  directory: "/"
+  schedule:
+    interval: "daily"
+  open-pull-requests-limit: 20
+  labels:
+    - "security"
+    - "automated"
+
+auto-merge:
+  enabled: true
+  required-status-checks:
+    - "test"
+    - "build"
+  commit-message:
+    prefix: "chore"
+    include: "scope"
