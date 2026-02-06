@@ -295,75 +295,63 @@ function displayArticles() {
     });
 }
 
-function createArticleCard(article, index) {
-    const isFeatured = index === 0 && State.currentCategory === 'all';
-    const isBookmarked = State.bookmarks.some(bm => bm.url === article.url);
-    
-    const title = NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.title) || 'No title';
-    const summary = NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.summary || 'No summary available');
-    const url = NewsHubUtils?.SecurityUtils?.sanitizeUrl(article.url) || '#';
-    
-    let imageUrl = article.image;
-    if (!imageUrl || imageUrl.trim() === '') {
-        imageUrl = 'https://via.placeholder.com/400x225?text=No+Image';
-    } else {
-        imageUrl = imageUrl.trim().replace(/\s+/g, '%20');
-    }
-    
-    const source = NewsHubUtils?.SecurityUtils?.sanitizeHtml(article.source?.name || 'Unknown');
-    const publishedAt = NewsHubUtils?.DateUtils?.formatDate(article.publishedAt) || 'Unknown date';
-    const readTime = NewsHubUtils?.DateUtils?.getReadTime(summary) || 'Unknown read time';
-    
-    const card = document.createElement('div');
-    card.className = `news-card ${isFeatured ? 'featured' : ''}`;
-    card.style.animationDelay = `${index * 0.1}s`;
-    
-    card.innerHTML = `
-        <div class="card-image-wrapper">
-            <img src="${imageUrl}" alt="${title}" loading="lazy" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x225?text=Image+Error'">
-            <div class="image-overlay">
-                <span class="source">
-                    <i class="fas fa-circle-dot"></i>
-                    ${source}
+let imageUrl = article.image;
+if (!imageUrl || imageUrl.trim() === '' || !imageUrl.trim().match(/^https?:\/\//i)) {
+    imageUrl = 'https://via.placeholder.com/400x225/cccccc/999999?text=No+Image';
+} else {
+    imageUrl = imageUrl.trim().replace(/\s+/g, '%20').replace(/'/g, '%27').replace(/"/g, '%22');
+}
+
+const card = document.createElement('div');
+card.className = `news-card ${isFeatured ? 'featured' : ''}`;
+card.style.animationDelay = `${index * 0.1}s`;
+
+card.innerHTML = `
+    <div class="card-image-wrapper">
+        <img src="${imageUrl}" alt="${title}" loading="lazy">
+        <div class="image-overlay">
+            <span class="source">
+                <i class="fas fa-circle-dot"></i>
+                ${source}
+            </span>
+        </div>
+        ${isFeatured ? `
+            <div class="absolute top-3 left-3">
+                <span class="badge badge-breaking">
+                    <i class="fas fa-bolt mr-1"></i>
+                    BREAKING
                 </span>
             </div>
-            ${isFeatured ? `
-                <div class="absolute top-3 left-3">
-                    <span class="badge badge-breaking">
-                        <i class="fas fa-bolt mr-1"></i>
-                        BREAKING
-                    </span>
-                </div>
-            ` : ''}
-        </div>
-        <div class="card-content">
-            <h3>${title}</h3>
-            <p>${summary}</p>
-            <div class="card-meta">
-                <div class="card-meta-left">
-                    <span>
-                        <i class="far fa-clock"></i>
-                        ${publishedAt}
-                    </span>
-                    <span>
-                        <i class="far fa-clock"></i>
-                        ${readTime}
-                    </span>
-                </div>
-                <div class="card-meta-right">
-                    <button class="action-btn bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
-                            title="${isBookmarked ? 'Remove bookmark' : 'Bookmark article'}"
-                            data-url="${url}">
-                        <i class="fas ${isBookmarked ? 'fa-bookmark' : 'fa-bookmark'}"></i>
-                    </button>
-                </div>
+        ` : ''}
+    </div>
+    <div class="card-content">
+        <h3>${title}</h3>
+        <p>${summary}</p>
+        <div class="card-meta">
+            <div class="card-meta-left">
+                <span>
+                    <i class="far fa-clock"></i>
+                    ${publishedAt}
+                </span>
+                <span>
+                    <i class="far fa-clock"></i>
+                    ${readTime}
+                </span>
             </div>
-            <a href="${url}" target="_blank" rel="noopener noreferrer" class="read-more-btn">
-                Read Full Story
-                <i class="fas fa-arrow-right"></i>
-            </a>
+            <div class="card-meta-right">
+                <button class="action-btn bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
+                        title="${isBookmarked ? 'Remove bookmark' : 'Bookmark article'}"
+                        data-url="${url}">
+                    <i class="fas ${isBookmarked ? 'fa-bookmark' : 'fa-bookmark'}"></i>
+                </button>
+            </div>
         </div>
-    `;
+        <a href="${url}" target="_blank" rel="noopener noreferrer" class="read-more-btn">
+            Read Full Story
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+`;
     
     const bookmarkBtn = card.querySelector('.bookmark-btn');
     if (bookmarkBtn) {
