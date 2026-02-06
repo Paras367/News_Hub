@@ -6,7 +6,7 @@
     <meta name="description" content="NewsHub Pro - Latest headlines from trusted sources worldwide">
     <meta name="keywords" content="news, headlines, breaking news, latest news, world news">
     <title>NewsHub Pro 📰 | Breaking News & Latest Headlines</title>
-    <link rel="icon" href="image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📰</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%236366f1'/%3E%3Cpath d='M30 30H70V40H30V30Z M30 45H70V55H30V45Z M30 60H70V70H30V60Z' fill='white'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -232,163 +232,209 @@
         </section>
     </main>
 
-   
-    <footer class="bg-gradient-to-r from-gray-900 to-black text-white pt-16 pb-8">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-                <div class="space-y-4">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="bg-blue-600 p-3 rounded-xl">
-                            <i class="fas fa-newspaper text-2xl"></i>
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column footer-brand">
+                    <div class="footer-logo">
+                        <div class="footer-logo-icon">
+                            <i class="fas fa-newspaper"></i>
                         </div>
-                        <div>
-                            <h3 class="text-2xl font-bold">NewsHub Pro</h3>
-                            <p class="text-gray-400 text-sm">Your trusted news source</p>
-                        </div>
+                        <div class="footer-logo-text">NewsHub Pro</div>
                     </div>
-                    <p class="text-gray-400 leading-relaxed">
-                        Stay informed with the latest breaking news and headlines from around the world.
+                    <p>
+                        Your trusted source for breaking news, latest headlines, and in-depth analysis from around the world.
                     </p>
-                    <div class="flex space-x-3 pt-3">
-                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-blue-600 flex items-center justify-center transition">
+                    <div class="footer-social">
+                        <a href="#" class="social-link facebook" title="Facebook">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-blue-400 flex items-center justify-center transition">
+                        <a href="#" class="social-link twitter" title="Twitter">
                             <i class="fab fa-twitter"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-pink-600 flex items-center justify-center transition">
+                        <a href="#" class="social-link instagram" title="Instagram">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:bg-red-600 flex items-center justify-center transition">
+                        <a href="#" class="social-link youtube" title="YouTube">
                             <i class="fab fa-youtube"></i>
                         </a>
+                        <a href="#" class="social-link linkedin" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="social-link telegram" title="Telegram">
+                            <i class="fab fa-telegram-plane"></i>
+                        </a>
                     </div>
                 </div>
 
-               
-                <div>
-                    <h4 class="text-lg font-bold mb-6 flex items-center">
-                        <i class="fas fa-link mr-2 text-blue-500"></i>
-                        Quick Links
-                    </h4>
-                    <ul class="space-y-3">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-chevron-right mr-2 text-sm"></i> Home</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-chevron-right mr-2 text-sm"></i> Latest News</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-chevron-right mr-2 text-sm"></i> Categories</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-chevron-right mr-2 text-sm"></i> About Us</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-chevron-right mr-2 text-sm"></i> Contact</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-chevron-right mr-2 text-sm"></i> Privacy Policy</a></li>
-                    </ul>
+                <div class="footer-column">
+                    <h4><i class="fas fa-bolt mr-2"></i>Quick Links</h4>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Home
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Latest News
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Breaking News
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Top Stories
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Trending Now
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-arrow-right"></i>
+                            Popular This Week
+                        </a>
+                    </div>
                 </div>
 
-                
-                <div>
-                    <h4 class="text-lg font-bold mb-6 flex items-center">
-                        <i class="fas fa-folder mr-2 text-blue-500"></i>
-                        Categories
-                    </h4>
-                    <ul class="space-y-3">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-briefcase mr-2"></i> Business</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-laptop-code mr-2"></i> Technology</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-film mr-2"></i> Entertainment</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-futbol mr-2"></i> Sports</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-heartbeat mr-2"></i> Health</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition flex items-center"><i class="fas fa-flask mr-2"></i> Science</a></li>
-                    </ul>
+                <div class="footer-column">
+                    <h4><i class="fas fa-folder mr-2"></i>Categories</h4>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-briefcase"></i>
+                            Business & Finance
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-laptop-code"></i>
+                            Technology & AI
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-film"></i>
+                            Entertainment
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-futbol"></i>
+                            Sports
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-heartbeat"></i>
+                            Health & Wellness
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-flask"></i>
+                            Science & Research
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-globe-americas"></i>
+                            World News
+                        </a>
+                        <a href="#" class="footer-link">
+                            <i class="fas fa-chart-line"></i>
+                            Politics
+                        </a>
+                    </div>
                 </div>
 
-              
-                <div>
-                    <h4 class="text-lg font-bold mb-6 flex items-center">
-                        <i class="fas fa-envelope mr-2 text-blue-500"></i>
-                        Newsletter
+                <div class="footer-column">
+                    <h4 class="newsletter-title">
+                        <i class="fas fa-envelope"></i>
+                        Subscribe to Newsletter
                     </h4>
-                    <p class="text-gray-400 mb-4">
-                        Subscribe to get the latest news delivered to your inbox.
+                    <p class="newsletter-desc">
+                        Get the latest news delivered to your inbox every morning. Stay informed, stay ahead.
                     </p>
-                    <div class="space-y-3">
+                    <form class="newsletter-form">
                         <input 
                             type="email" 
+                            class="newsletter-input" 
                             placeholder="Your email address" 
-                            class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-500"
+                            required
                         >
-                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center space-x-2">
+                        <button type="submit" class="newsletter-btn">
                             <i class="fas fa-paper-plane"></i>
-                            <span>Subscribe</span>
+                            Subscribe Now
                         </button>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-3">
-                        <i class="fas fa-lock mr-1"></i> We respect your privacy. Unsubscribe anytime.
+                    </form>
+                    <p class="newsletter-privacy">
+                        <i class="fas fa-lock"></i>
+                        We respect your privacy. Unsubscribe anytime.
                     </p>
                 </div>
             </div>
 
-            
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 border-t border-gray-800 pt-8">
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-blue-500 mb-1">10M+</div>
-                    <div class="text-gray-400 text-sm">Monthly Readers</div>
+            <div class="footer-stats">
+                <div class="stat-item">
+                    <div class="stat-number">10M+</div>
+                    <div class="stat-label">Monthly Readers</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-blue-500 mb-1">500+</div>
-                    <div class="text-gray-400 text-sm">News Sources</div>
+                <div class="stat-item">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">News Sources</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-blue-500 mb-1">24/7</div>
-                    <div class="text-gray-400 text-sm">Live Updates</div>
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Live Updates</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-blue-500 mb-1">100%</div>
-                    <div class="text-gray-400 text-sm">Trusted Content</div>
+                <div class="stat-item">
+                    <div class="stat-number">99.9%</div>
+                    <div class="stat-label">Uptime Guarantee</div>
                 </div>
             </div>
 
-            
-            <div class="border-t border-gray-800 pt-8">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="mb-4 md:mb-0">
-                        <p class="text-gray-400 text-sm">
-                            © 2026 <span class="font-semibold">NewsHub Pro</span>. All rights reserved.
-                        </p>
-                    </div>
-                    
-                    <div class="flex flex-wrap justify-center gap-6 mb-6 md:mb-0">
-                        <a href="#" class="text-gray-400 hover:text-white transition text-sm flex items-center">
-                            <i class="fas fa-shield-alt mr-2"></i> Privacy Policy
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition text-sm flex items-center">
-                            <i class="fas fa-file-contract mr-2"></i> Terms of Service
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition text-sm flex items-center">
-                            <i class="fas fa-cookie mr-2"></i> Cookie Policy
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition text-sm flex items-center">
-                            <i class="fas fa-headset mr-2"></i> Contact Support
-                        </a>
-                    </div>
-                    
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-white transition">
-                            <i class="fab fa-apple text-2xl"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition">
-                            <i class="fab fa-google-play text-2xl"></i>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition">
-                            <i class="fab fa-windows text-2xl"></i>
-                        </a>
-                    </div>
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    &copy; 2026 <span style="font-weight: 600; color: #fff;">NewsHub Pro</span>. All rights reserved.
                 </div>
-
-              
-                <div class="mt-8 pt-6 border-t border-gray-800 text-center text-xs text-gray-500">
+                
+                <div class="footer-nav">
+                    <a href="#">
+                        <i class="fas fa-shield-alt"></i>
+                        Privacy Policy
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-file-contract"></i>
+                        Terms of Service
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-cookie"></i>
+                        Cookie Policy
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-user-shield"></i>
+                        GDPR Compliance
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-headset"></i>
+                        Contact Support
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-rss"></i>
+                        RSS Feeds
+                    </a>
+                </div>
+                
+                <div class="footer-apps">
+                    <a href="#" class="app-link" title="Download on App Store">
+                        <i class="fab fa-app-store-ios"></i>
+                    </a>
+                    <a href="#" class="app-link" title="Get it on Google Play">
+                        <i class="fab fa-google-play"></i>
+                    </a>
+                    <a href="#" class="app-link" title="Download for Windows">
+                        <i class="fab fa-windows"></i>
+                    </a>
+                    <a href="#" class="app-link" title="Follow on Medium">
+                        <i class="fab fa-medium"></i>
+                    </a>
+                </div>
+                <div class="footer-attribution">
                     <p class="mb-2">
                         <i class="fas fa-info-circle mr-2"></i>
-                        News summaries only. All content belongs to original sources.
+                        News summaries only. All content belongs to original sources and publishers.
                     </p>
                     <p>
                         <i class="fas fa-bolt mr-2"></i>
-                        Powered by News API • Built with ❤️ by SoftwareLabs
+                        Powered by News API • Built with ❤️ by SoftwareLabs • Cloudflare Workers
                     </p>
                 </div>
             </div>
