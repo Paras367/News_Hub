@@ -1,4 +1,4 @@
-
+# .github/dependabot.yml
 version: 2
 
 updates:
@@ -18,12 +18,13 @@ updates:
       prefix: "deps"
       include: "scope"
     allow:
-      - dependency-name: "cloudflare-worker*"
       - dependency-name: "crypto-js"
-      - dependency-name: "sha256"
+      - dependency-name: "js-sha256"
+      - dependency-name: "crypto-es"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -34,57 +35,7 @@ updates:
       timezone: "UTC"
     open-pull-requests-limit: 5
     reviewers:
-      - "your-username"
+      - "Paras367"
     labels:
       - "github-actions"
       - "automated"
-
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "tuesday"
-      time: "10:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 3
-    labels:
-      - "docker"
-      - "automated"
-
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 20
-    labels:
-      - "security"
-      - "critical"
-    commit-message:
-      prefix: "security"
-    groups:
-      security-updates:
-        patterns:
-          - "*"
-        update-types:
-          - "security:high"
-          - "security:critical"
-
-security-updates:
-  enabled: true
-  package-ecosystem: "npm"
-  directory: "/"
-  schedule:
-    interval: "daily"
-  open-pull-requests-limit: 20
-  labels:
-    - "security"
-    - "automated"
-
-auto-merge:
-  enabled: true
-  required-status-checks:
-    - "test"
-    - "build"
-  commit-message:
-    prefix: "chore"
-    include: "scope"
